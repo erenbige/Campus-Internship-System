@@ -53,6 +53,13 @@ Steps to set up the backend environment locally:
 ## 9. UML Diagram
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/f976df78-257b-4401-82c6-83df0be038e0" />
 
+## 10. Sources
+
+Jira: https://proje1755.atlassian.net/jira/software/projects/SCRUM/boards/1?jql=
+
+
+
+
 
 ```bash
 # 1. Isolate environment
@@ -68,3 +75,5 @@ python manage.py migrate
 
 # 4. Run the server
 python manage.py runserver
+
+
