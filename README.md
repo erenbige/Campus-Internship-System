@@ -61,19 +61,6 @@ Jira: https://proje1755.atlassian.net/jira/software/projects/SCRUM/boards/1?jql=
 
 
 
-```bash
-# 1. Isolate environment
-python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
 
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Initialize database
-python manage.py makemigrations
-python manage.py migrate
-
-# 4. Run the server
-python manage.py runserver
 
 
