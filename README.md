@@ -53,8 +53,11 @@ Steps to set up the backend environment locally:
 ## 9. UML Diagram
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/f976df78-257b-4401-82c6-83df0be038e0" />
 
-## 9. Risk Matrix
+## 10. Risk Matrix
 <img width="1872" height="1638" alt="image" src="https://github.com/user-attachments/assets/a62c7b4e-8cd5-4dfc-a81e-4bb621d49894" />
+
+## 11. Pointing System
+<img width="790" height="844" alt="pointingsystem" src="https://github.com/user-attachments/assets/fbf16f99-87b6-4a89-b9fb-bb8d112dda16" />
 
 ## 10. Sources
 
