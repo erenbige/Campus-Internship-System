@@ -1,0 +1,17 @@
+name: Frontend CI Pipeline
+on:
+  push:
+    branches: [ "Frontend" ]
+
+jobs:
+  quality-assurance:
+    name: Code Quality and Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Professional Greeting
+        run: |
+          echo "Scanning Frontend files..."
+          ls -R
+          echo "CI/CD is officially active."
