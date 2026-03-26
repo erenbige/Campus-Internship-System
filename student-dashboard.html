@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCampus - Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .navbar { background-color: #0d6efd; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .job-card { transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .job-card:hover { transform: translateY(-8px); box-shadow: 0 12px 20px rgba(0,0,0,0.15); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark mb-5">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">🎓 CodeCampus</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link active" href="#">Internships</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">My Applications</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">My Profile</a></li>
+                <li class="nav-item ms-3"><a class="btn btn-light btn-sm fw-bold text-primary" href="login.html">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold">Welcome, Student! 👋</h2>
+            <p class="text-muted">Discover the latest campus internship opportunities tailored for you.</p>
+        </div>
+        <div class="col-md-4">
+            <input type="text" class="form-control rounded-pill" placeholder="Search internships or companies...">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card job-card h-100 p-3">
+                <div class="card-body">
+                    <span class="badge bg-primary mb-2">Frontend</span>
+                    <h5 class="card-title fw-bold">Web Development Intern</h5>
+                    <h6 class="card-subtitle mb-3 text-muted">TechNova Solutions • Istanbul</h6>
+                    <p class="card-text small">We are looking for interns with strong HTML, CSS, and JavaScript fundamentals to build modern web interfaces.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <button class="btn btn-outline-primary w-100 rounded-pill fw-bold">View & Apply</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card job-card h-100 p-3">
+                <div class="card-body">
+                    <span class="badge bg-success mb-2">Backend</span>
+                    <h5 class="card-title fw-bold">Python Django Intern</h5>
+                    <h6 class="card-subtitle mb-3 text-muted">DataCore Inc. • Remote</h6>
+                    <p class="card-text small">Join our backend team to build REST API architectures and manage database operations alongside senior developers.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <button class="btn btn-outline-primary w-100 rounded-pill fw-bold">View & Apply</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card job-card h-100 p-3">
+                <div class="card-body">
+                    <span class="badge bg-warning text-dark mb-2">AI / ML</span>
+                    <h5 class="card-title fw-bold">Machine Learning Intern</h5>
+                    <h6 class="card-subtitle mb-3 text-muted">AI Visionaries • Technopark</h6>
+                    <p class="card-text small">Seeking talented students to join our R&D team working on computer vision and predictive models.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <button class="btn btn-outline-primary w-100 rounded-pill fw-bold">View & Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
