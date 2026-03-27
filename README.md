@@ -59,7 +59,31 @@ Steps to set up the backend environment locally:
 ## 11. Pointing System
 <img width="790" height="844" alt="pointingsystem" src="https://github.com/user-attachments/assets/fbf16f99-87b6-4a89-b9fb-bb8d112dda16" />
 
-## 10. Sources
+## 12. Live Demo Plan
+
+This section outlines the structured flow of the live demonstration for the Campus Internship System MVP. The demo is designed to take approximately 5-7 minutes.
+
+**Phase 1: Project Management & Agile Workflow**
+* Present the GitHub Projects Kanban board.
+* Review completed tasks (Frontend UI, Backend Django Models, CI/CD Integration) and backlog items (AWS Deployment, API Hookups).
+
+**Phase 2: Codebase Architecture & CI/CD Automation**
+* Showcase the isolated branch structure ensuring decoupled Frontend and Backend environments.
+* Demonstrate the GitHub Actions pipeline (`main.yml`) in real-time, highlighting the automated HTML linting and TruffleHog secret scanning processes that secure the codebase.
+
+**Phase 3: User Interface & Experience (Local Simulation)**
+* Launch the frontend applications (`login.html`, `student-dashboard.html`, `company-dashboard.html`) locally in the browser.
+* Walk through the UX flow for both Student and Company roles, emphasizing the fast modal windows, DataTables integration, and distraction-free corporate design.
+
+**Phase 4: Risk Mitigation & Next Steps**
+* Briefly discuss how Git proxy configurations and rebase strategies solved initial network/merge risks.
+* Outline the roadmap for the next sprint: Deploying the PostgreSQL database to AWS RDS and hosting the application via ECS.
+
+
+
+
+
+## 13. Sources
 
 Jira: https://proje1755.atlassian.net/jira/software/projects/SCRUM/boards/1?jql=
 
