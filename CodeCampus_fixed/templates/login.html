@@ -54,7 +54,7 @@
     const token = localStorage.getItem('token');
     const role  = localStorage.getItem('role');
     if (token && role) {
-        window.location.href = role === 'company' ? 'company-dashboard.html' : 'student-dashboard.html';
+        window.location.href = role === 'company' ? '/company-dashboard/' : '/student-dashboard/';
     }
 
     function showAlert(msg, type = 'danger') {
@@ -104,11 +104,11 @@
                 localStorage.setItem('role', profile.is_company ? 'company' : 'student');
                 localStorage.setItem('skills', profile.student_skills || '');
                 localStorage.setItem('company_name', profile.company_name || '');
-                window.location.href = profile.is_company ? 'company-dashboard.html' : 'student-dashboard.html';
+                window.location.href = role === 'company' ? 'company-dashboard.html' : 'student-dashboard.html';
             } else {
                 // /me/ endpoint yoksa token'dan sadece yönlendirme yap
                 localStorage.setItem('username', username);
-                window.location.href = 'student-dashboard.html';
+                window.location.href = '/student-dashboard/';
             }
 
         } catch (err) {
