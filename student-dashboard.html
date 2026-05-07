@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCampus - Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .navbar { background-color: #0d6efd; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .job-card { transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .job-card:hover { transform: translateY(-6px); box-shadow: 0 12px 20px rgba(0,0,0,0.15); }
+        .score-badge { font-size: 0.75rem; }
+        .tab-content { padding-top: 1.5rem; }
+        .status-PENDING    { background-color: #ffc107; color: #000; }
+        .status-UNDER_REVIEW { background-color: #0dcaf0; color: #000; }
+        .status-ACCEPTED   { background-color: #198754; color: #fff; }
+        .status-REJECTED   { background-color: #dc3545; color: #fff; }
+        .status-CANCELED   { background-color: #6c757d; color: #fff; }
+        #loadingSpinner { display: none; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">🎓 CodeCampus</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="navInternships" onclick="showTab('internships')">Internships</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showTab('myapps')">My Applications</a>
+                </li>
+                <li class="nav-item ms-2">
+                    <span class="navbar-text text-white-50 small me-2">👤 <span id="navUsername"></span></span>
+                </li>
+                <li class="nav-item ms-2">
+                    <a class="btn btn-light btn-sm fw-bold text-primary" href="#" onclick="logout()">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- Alert -->
+    <div id="alertBox" class="alert d-none" role="alert"></div>
+
+    <!-- Loading -->
+    <div id="loadingSpinner" class="text-center my-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted">Loading...</p>
+    </div>
+
+    <!-- TAB: INTERNSHIPS -->
+    <div id="tabInternships">
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold">Welcome, <span id="welcomeName"></span>! 👋</h2>
+                <p class="text-muted">Discover the latest campus internship opportunities tailored for you.</p>
+            </div>
+            <div class="col-md-4">
+                <input type="text" id="searchInput" class="form-control rounded-pill"
+                    placeholder="Search by title or skills..." oninput="filterJobs()">
+            </div>
+        </div>
+        <div class="row" id="jobsContainer">
+            <!-- İlanlar buraya yüklenecek -->
+        </div>
+        <p id="noJobs" class="text-center text-muted d-none mt-5">No internship listings found.</p>
+    </div>
+
+    <!-- TAB: MY APPLICATIONS -->
+    <div id="tabMyApps" class="d-none">
+        <h4 class="fw-bold mb-4">My Applications</h4>
+        <div class="table-responsive bg-white rounded shadow-sm p-3">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Resume Link</th>
+                        <th>Match Score</th>
+                        <th>Status</th>
+                        <th>Applied At</th>
+                    </tr>
+                </thead>
+                <tbody id="myAppsTableBody">
+                </tbody>
+            </table>
+            <p id="noApps" class="text-center text-muted d-none mt-3">You haven't applied to any jobs yet.</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- APPLY MODAL -->
+<div class="modal fade" id="applyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="applyModalTitle">Apply for Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="applyAlert" class="alert d-none"></div>
+                <p class="text-muted small mb-3">
+                    Your skills: <strong id="modalSkills"></strong>
+                </p>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Resume Link (URL) <span class="text-danger">*</span></label>
+                    <input type="url" id="resumeLink" class="form-control" placeholder="https://drive.google.com/your-cv">
+                    <div class="form-text">Google Drive, LinkedIn, or any public link.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary fw-bold" id="confirmApplyBtn" onclick="confirmApply()">
+                    Submit Application
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE = 'http://127.0.0.1:8000/api';
+    const token    = localStorage.getItem('token');
+    const username = localStorage.getItem('username') || 'Student';
+    const skills   = localStorage.getItem('skills') || '';
+
+    // Auth guard
+    if (!token) window.location.href = 'login.html';
+
+    let allJobs = [];
+    let selectedJobId = null;
+    let applyModal = null;
+
+    // ── Init ──────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('navUsername').textContent = username;
+        document.getElementById('welcomeName').textContent = username;
+        document.getElementById('modalSkills').textContent = skills || '(no skills listed)';
+        applyModal = new bootstrap.Modal(document.getElementById('applyModal'));
+        loadJobs();
+    });
+
+    // ── Tab switching ─────────────────────────────────────────────────
+    function showTab(tab) {
+        document.getElementById('tabInternships').classList.toggle('d-none', tab !== 'internships');
+        document.getElementById('tabMyApps').classList.toggle('d-none', tab !== 'myapps');
+        if (tab === 'myapps') loadMyApplications();
+    }
+
+    // ── Alert ─────────────────────────────────────────────────────────
+    function showAlert(msg, type = 'danger') {
+        const box = document.getElementById('alertBox');
+        box.className = `alert alert-${type}`;
+        box.textContent = msg;
+        box.classList.remove('d-none');
+        setTimeout(() => box.classList.add('d-none'), 5000);
+    }
+
+    function setLoading(state) {
+        document.getElementById('loadingSpinner').style.display = state ? 'block' : 'none';
+    }
+
+    // ── Load Jobs ─────────────────────────────────────────────────────
+    async function loadJobs() {
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/jobs/`, {
+                headers: { 'Authorization': `Token ${token}` }
+            });
+            if (res.status === 401) { logout(); return; }
+            const data = await res.json();
+            allJobs = Array.isArray(data) ? data : (data.results || []);
+            renderJobs(allJobs);
+        } catch {
+            showAlert('Could not load job listings. Is the server running?');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function renderJobs(jobs) {
+        const container = document.getElementById('jobsContainer');
+        const noJobs    = document.getElementById('noJobs');
+        container.innerHTML = '';
+
+        if (!jobs.length) {
+            noJobs.classList.remove('d-none');
+            return;
+        }
+        noJobs.classList.add('d-none');
+
+        jobs.forEach(job => {
+            const skillBadges = job.required_skills
+                ? job.required_skills.split(',').map(s =>
+                    `<span class="badge bg-secondary me-1">${s.trim()}</span>`).join('')
+                : '';
+
+            container.innerHTML += `
+            <div class="col-md-4 mb-4">
+                <div class="card job-card h-100 p-3">
+                    <div class="card-body">
+                        <div class="mb-2">${skillBadges}</div>
+                        <h5 class="card-title fw-bold">${escHtml(job.title)}</h5>
+                        <h6 class="card-subtitle mb-3 text-muted">🏢 ${escHtml(job.company_name || 'Company')}</h6>
+                        <p class="card-text small text-secondary">${escHtml(job.description)}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <button class="btn btn-outline-primary w-100 rounded-pill fw-bold"
+                            onclick="openApplyModal(${job.id}, '${escHtml(job.title)}')">
+                            View &amp; Apply
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+
+    // ── Search / Filter ───────────────────────────────────────────────
+    function filterJobs() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        if (!q) { renderJobs(allJobs); return; }
+        renderJobs(allJobs.filter(j =>
+            j.title.toLowerCase().includes(q) ||
+            (j.required_skills || '').toLowerCase().includes(q) ||
+            (j.company_name || '').toLowerCase().includes(q)
+        ));
+    }
+
+    // ── Apply Modal ───────────────────────────────────────────────────
+    function openApplyModal(jobId, jobTitle) {
+        selectedJobId = jobId;
+        document.getElementById('applyModalTitle').textContent = `Apply: ${jobTitle}`;
+        document.getElementById('resumeLink').value = '';
+        document.getElementById('applyAlert').classList.add('d-none');
+        applyModal.show();
+    }
+
+    async function confirmApply() {
+        const resumeLink = document.getElementById('resumeLink').value.trim();
+        const alertEl    = document.getElementById('applyAlert');
+
+        if (!resumeLink) {
+            alertEl.className = 'alert alert-danger';
+            alertEl.textContent = 'Please enter a resume link.';
+            alertEl.classList.remove('d-none');
+            return;
+        }
+
+        const btn = document.getElementById('confirmApplyBtn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+
+        try {
+            const res = await fetch(`${API_BASE}/jobs/${selectedJobId}/apply/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ resume_link: resumeLink })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                applyModal.hide();
+                showAlert(`✅ Application submitted! Match score: ${data.match_score}%`, 'success');
+            } else {
+                alertEl.className = 'alert alert-danger';
+                alertEl.textContent = data.error || 'Application failed.';
+                alertEl.classList.remove('d-none');
+            }
+        } catch {
+            alertEl.className = 'alert alert-danger';
+            alertEl.textContent = 'Server error. Try again.';
+            alertEl.classList.remove('d-none');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Submit Application';
+        }
+    }
+
+    // ── My Applications ───────────────────────────────────────────────
+    async function loadMyApplications() {
+        const tbody = document.getElementById('myAppsTableBody');
+        const noApps = document.getElementById('noApps');
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>';
+
+        try {
+            // Öğrenci kendi başvurularını görmek için jobs listesinden değil,
+            // company endpoint'i gibi bir "student/applications" endpoint'i gerekir.
+            // Backend'de böyle bir endpoint yoksa tüm jobs'tan filtreleyerek gösterilir.
+            // Burada backend'e uygun endpoint çağrılıyor:
+            const res = await fetch(`${API_BASE}/jobs/my-applications/`, {
+                headers: { 'Authorization': `Token ${token}` }
+            });
+
+            if (!res.ok) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Could not load applications.</td></tr>';
+                return;
+            }
+
+            const apps = await res.json();
+            const list = Array.isArray(apps) ? apps : (apps.results || []);
+
+            if (!list.length) {
+                tbody.innerHTML = '';
+                noApps.classList.remove('d-none');
+                return;
+            }
+
+            noApps.classList.add('d-none');
+            tbody.innerHTML = list.map(app => `
+                <tr>
+                    <td class="fw-bold">${escHtml(app.job_title)}</td>
+                    <td><a href="${escHtml(app.resume_link)}" target="_blank" class="text-decoration-none">📄 View CV</a></td>
+                    <td>
+                        <span class="badge bg-primary score-badge">${app.match_score}%</span>
+                    </td>
+                    <td>
+                        <span class="badge status-${app.status}">${app.status.replace('_',' ')}</span>
+                    </td>
+                    <td class="text-muted small">${new Date(app.applied_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+
+        } catch {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Server error.</td></tr>';
+        }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────
+    function escHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
+</script>
+</body>
+</html>
