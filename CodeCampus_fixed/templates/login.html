@@ -98,20 +98,24 @@
                 headers: { 'Authorization': `Token ${data.token}` }
             });
 
-            if (profileRes.ok) {
-                const profile = await profileRes.json();
-                localStorage.setItem('username', profile.username);
-                localStorage.setItem('role', profile.is_company ? 'company' : 'student');
-                localStorage.setItem('skills', profile.student_skills || '');
-                localStorage.setItem('company_name', profile.company_name || '');
-                window.location.href = role === 'company'
-                ? '/company-dashboard/'
-                : '/student-dashboard/';
-            } else {
-                // /me/ endpoint yoksa token'dan sadece yönlendirme yap
-                localStorage.setItem('username', username);
-                window.location.href = '/student-dashboard/';
-            }
+        if (profileRes.ok) {
+    const profile = await profileRes.json();
+
+    localStorage.setItem('username', profile.username);
+    localStorage.setItem('role', profile.is_company ? 'company' : 'student');
+    localStorage.setItem('skills', profile.student_skills || '');
+    localStorage.setItem('company_name', profile.company_name || '');
+
+    if (profile.is_company) {
+        window.location.href = '/company-dashboard/';
+    } else {
+        window.location.href = '/student-dashboard/';
+    }
+
+} else {
+    localStorage.setItem('username', username);
+    window.location.href = '/';
+}
 
         } catch (err) {
             showAlert('Cannot connect to server. Make sure the backend is running.');
