@@ -104,7 +104,9 @@
                 localStorage.setItem('role', profile.is_company ? 'company' : 'student');
                 localStorage.setItem('skills', profile.student_skills || '');
                 localStorage.setItem('company_name', profile.company_name || '');
-                window.location.href = role === 'company' ? 'company-dashboard.html' : 'student-dashboard.html';
+                window.location.href = role === 'company'
+                ? '/company-dashboard/'
+                : '/student-dashboard/';
             } else {
                 // /me/ endpoint yoksa token'dan sadece yönlendirme yap
                 localStorage.setItem('username', username);
