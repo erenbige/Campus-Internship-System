@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCampus - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-card { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .login-card .card-header { background-color: #0d6efd; color: white; text-align: center; border-radius: 15px 15px 0 0; padding: 20px; }
+        .btn-login { border-radius: 25px; padding: 10px 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card login-card">
+                <div class="card-header">
+                    <h3>🎓 CodeCampus</h3>
+                    <p class="mb-0">Campus Internship & Job Tracking System</p>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Hata / Başarı mesajı -->
+                    <div id="alertBox" class="alert d-none" role="alert"></div>
+
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Username</label>
+                            <input type="text" id="username" class="form-control" placeholder="your_username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Password</label>
+                            <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" id="loginBtn" class="btn btn-primary btn-login">
+                                Login to Dashboard
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE = 'http://127.0.0.1:8000/api';
+
+    // Zaten giriş yapılmışsa yönlendir
+    const token = localStorage.getItem('token');
+    const role  = localStorage.getItem('role');
+    if (token && role) {
+        window.location.href = role === 'company' ? 'company-dashboard.html' : 'student-dashboard.html';
+    }
+
+    function showAlert(msg, type = 'danger') {
+        const box = document.getElementById('alertBox');
+        box.className = `alert alert-${type}`;
+        box.textContent = msg;
+        box.classList.remove('d-none');
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('loginBtn');
+        btn.disabled = true;
+        btn.textContent = 'Logging in...';
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        try {
+            // 1) Token al
+            const res = await fetch(`${API_BASE}/users/login/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                showAlert(data.non_field_errors?.[0] || 'Invalid username or password.');
+                btn.disabled = false;
+                btn.textContent = 'Login to Dashboard';
+                return;
+            }
+
+            // 2) Token ve kullanıcı bilgisini kaydet
+            localStorage.setItem('token', data.token);
+
+            // 3) Kullanıcı rolünü öğrenmek için profil çek
+            const profileRes = await fetch(`${API_BASE}/users/me/`, {
+                headers: { 'Authorization': `Token ${data.token}` }
+            });
+
+            if (profileRes.ok) {
+                const profile = await profileRes.json();
+                localStorage.setItem('username', profile.username);
+                localStorage.setItem('role', profile.is_company ? 'company' : 'student');
+                localStorage.setItem('skills', profile.student_skills || '');
+                localStorage.setItem('company_name', profile.company_name || '');
+                window.location.href = profile.is_company ? 'company-dashboard.html' : 'student-dashboard.html';
+            } else {
+                // /me/ endpoint yoksa token'dan sadece yönlendirme yap
+                localStorage.setItem('username', username);
+                window.location.href = 'student-dashboard.html';
+            }
+
+        } catch (err) {
+            showAlert('Cannot connect to server. Make sure the backend is running.');
+            btn.disabled = false;
+            btn.textContent = 'Login to Dashboard';
+        }
+    });
+</script>
+</body>
+</html>
